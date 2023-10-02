@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Content Management</title>
+</head>
+<body>
+  <h1>Content Management System</h1>
+
+  <!-- Create Content Form -->
+  <h2>Create New Content</h2>
+  <form id="createContentForm">
+    <input type="text" id="title" placeholder="Title" required>
+    <textarea id="body" placeholder="Content" required></textarea>
+    <button type="submit">Create</button>
+  </form>
+
+  <!-- Display Content -->
+  <h2>Content List</h2>
+  <ul id="contentList"></ul>
+
+  <script>
+    // JavaScript code to fetch and display content
+    const contentList = document.getElementById('contentList');
+    const createContentForm = document.getElementById('createContentForm');
+
+    // Function to fetch and display content
+    async function fetchAndDisplayContent() {
+      contentList.innerHTML = ''; // Clear the list
+
+      const response = await fetch('/api/content');
+      const data = await response.json();
+
+      data.forEach((content) => {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `<strong>${content.title}:</strong> ${content.body}`;
+        contentList.appendChild(listItem);
+      });
+    }
+
+    // Event listener for content creation
+    createContentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const body = document.getElementById('body').value;
+
+      const response = await fetch('/api/content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title, body }),
+      });
+
+      if (response.status === 201) {
+        fetchAndDisplayContent(); // Refresh the content list
+        document.getElementById('title').value = '';
+        document.getElementById('body').value = '';
+      }
+    });
+
+    // Initial fetch and display content
+    fetchAndDisplayContent();
+  </script>
+</body>
+</html>
